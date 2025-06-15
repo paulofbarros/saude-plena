@@ -318,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const initialImc = initialRecord.imc;
         const currentImc = currentRecord.imc;
 
-
         const avgSteps = records.reduce((sum, record) => sum + (record.steps || 0), 0) / records.length;
         const avgSleepHours = records.reduce((sum, record) => sum + (record.sleepHours || 0), 0) / records.length;
 
@@ -333,6 +332,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const allDeadliftsWeights = records.map(record => record.deadliftsWeight || 0).filter(w => w > 0);
         const maxDeadliftsWeight = allDeadliftsWeights.length > 0 ? Math.max(...allDeadliftsWeights) : 'N/A';
 
+        // --- Novas Estimativas de Calorias Perdidas ---
+        const CALORIES_PER_STEP = 0.04; // Estimativa de calorias por passo
+        const CALORIES_PER_STRENGTH_TRAINING_SESSION = 400; // Estimativa de calorias por sessão de treino de força
+
+        let totalEstimatedCaloriesBurned = 0;
+        let totalEstimatedCaloriesFromSteps = 0;
+        let totalEstimatedCaloriesFromStrength = 0;
+
+        records.forEach(record => {
+            if (record.steps) {
+                const caloriesFromSteps = record.steps * CALORIES_PER_STEP;
+                totalEstimatedCaloriesFromSteps += caloriesFromSteps;
+            }
+            if (record.strengthTraining === 'yes') {
+                totalEstimatedCaloriesFromStrength += CALORIES_PER_STRENGTH_TRAINING_SESSION;
+            }
+        });
+
+        totalEstimatedCaloriesBurned = totalEstimatedCaloriesFromSteps + totalEstimatedCaloriesFromStrength;
+
+        // Média diária de calorias queimadas por passos (somente se houver registros com passos)
+        const totalStepsRecorded = records.filter(record => record.steps !== null && record.steps > 0).length;
+        const avgDailyCaloriesFromSteps = totalStepsRecorded > 0 ? (totalEstimatedCaloriesFromSteps / totalStepsRecorded).toFixed(0) : 'N/A';
+
+
         metricsSummary.innerHTML = `
             <p><strong>Peso Inicial Registrado:</strong> ${initialWeight}kg</p>
             <p><strong>Peso Atual:</strong> ${currentWeight}kg</p>
@@ -345,6 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ${maxSquatsWeight !== 'N/A' ? `<p><strong>Recorde Agachamento:</strong> ${maxSquatsWeight}kg</p>` : ''}
             ${maxDeadliftsWeight !== 'N/A' ? `<p><strong>Recorde Levantamento Terra:</strong> ${maxDeadliftsWeight}kg</p>` : ''}
             <p><strong>Consumo de Proteína:</strong> Alto (${proteinHighCount}) / Médio (${proteinMediumCount}) / Baixo (${proteinLowCount})</p>
+            <br>
+            <h3>Estimativa de Calorias Queimadas:</h3>
+            <p><em>(Valores estimados e podem variar)</em></p>
+            <p><strong>Média Diária (Passos):</strong> ${avgDailyCaloriesFromSteps !== 'N/A' ? avgDailyCaloriesFromSteps + ' kcal' : 'N/A'}</p>
+            <p><strong>Total Estimado por Passos:</strong> ${totalEstimatedCaloriesFromSteps.toFixed(0)} kcal</p>
+            <p><strong>Total Estimado por Treinos de Força:</strong> ${totalEstimatedCaloriesFromStrength.toFixed(0)} kcal</p>
+            <p><strong>Total Geral Estimado:</strong> ${totalEstimatedCaloriesBurned.toFixed(0)} kcal</p>
+
         `;
     }
 
