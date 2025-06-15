@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let records = JSON.parse(localStorage.getItem('healthRecords')) || [];
 
-    // Variáveis para os gráficos
-    let weightChart, imcChart, muscleMassChart, bodyFatChart, stepsChart, sleepChart, squatsChart, deadliftsChart;
+    // Variáveis para os gráficos (agora sem massa muscular e gordura)
+    let weightChart, imcChart, stepsChart, sleepChart, squatsChart, deadliftsChart;
 
     // Listener para mostrar/ocultar detalhes do treino de força
     strengthTrainingSelect.addEventListener('change', () => {
@@ -49,8 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <strong>Altura:</strong> ${record.height !== null ? record.height + 'cm' : 'N/A'} |
                     <strong>Peso:</strong> ${record.weight}kg
                 `;
-                if (record.muscleMass !== null) recordText += ` | <strong>MM:</strong> ${record.muscleMass}kg`;
-                if (record.bodyFatPercent !== null) recordText += ` | <strong>Gordura:</strong> ${record.bodyFatPercent}%`;
+                // IMC agora é a principal métrica de composição
                 if (record.imc !== null) recordText += ` | <strong>IMC:</strong> ${record.imc.toFixed(1)} (${getIMCCategory(record.imc)})`;
 
                 recordText += ` | <strong>Passos:</strong> ${record.steps !== null ? record.steps : 'N/A'} |
@@ -102,8 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Destruir gráficos se não houver dados
             if (weightChart) weightChart.destroy();
             if (imcChart) imcChart.destroy();
-            if (muscleMassChart) muscleMassChart.destroy();
-            if (bodyFatChart) bodyFatChart.destroy();
             if (stepsChart) stepsChart.destroy();
             if (sleepChart) sleepChart.destroy();
             if (squatsChart) squatsChart.destroy();
@@ -111,8 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Ocultar containers de gráficos de força/composição se não houver dados
             document.getElementById('imcChart').parentNode.style.display = 'none'; // Parent node é a chart-box
-            document.getElementById('muscleMassChart').parentNode.style.display = 'none';
-            document.getElementById('bodyFatChart').parentNode.style.display = 'none';
             document.getElementById('squatsChartContainer').style.display = 'none';
             document.getElementById('deadliftsChartContainer').style.display = 'none';
             return;
@@ -126,8 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const weights = sortedRecords.map(record => record.weight);
         const imcs = sortedRecords.map(record => record.imc); // Já calculados no newRecord
-        const muscleMasses = sortedRecords.map(record => record.muscleMass);
-        const bodyFats = sortedRecords.map(record => record.bodyFatPercent);
         const steps = sortedRecords.map(record => record.steps);
         const sleepHours = sortedRecords.map(record => record.sleepHours);
         const squatsWeights = sortedRecords.map(record => record.squatsWeight || null);
@@ -136,12 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Destruir gráficos existentes para evitar duplicidade
         if (weightChart) weightChart.destroy();
         if (imcChart) imcChart.destroy();
-        if (muscleMassChart) muscleMassChart.destroy();
-        if (bodyFatChart) bodyFatChart.destroy();
         if (stepsChart) stepsChart.destroy();
         if (sleepChart) sleepChart.destroy();
         if (squatsChart) squatsChart.destroy();
         if (deadliftsChart) deadliftsChart.destroy();
+
 
         // --- Gráficos Principais ---
         // Gráfico de Peso
@@ -196,62 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Gráfico de Massa Muscular (renderiza apenas se houver dados)
-        const hasMuscleMassData = muscleMasses.some(val => val !== null);
-        document.getElementById('muscleMassChart').parentNode.style.display = hasMuscleMassData ? 'block' : 'none';
-        if (hasMuscleMassData) {
-            const ctxMuscleMass = document.getElementById('muscleMassChart').getContext('2d');
-            muscleMassChart = new Chart(ctxMuscleMass, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Massa Muscular (kg)',
-                        data: muscleMasses,
-                        borderColor: 'rgb(54, 162, 235)',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    }
-                }
-            });
-        }
-
-        // Gráfico de Gordura Corporal (renderiza apenas se houver dados)
-        const hasBodyFatData = bodyFats.some(val => val !== null);
-        document.getElementById('bodyFatChart').parentNode.style.display = hasBodyFatData ? 'block' : 'none';
-        if (hasBodyFatData) {
-            const ctxBodyFat = document.getElementById('bodyFatChart').getContext('2d');
-            bodyFatChart = new Chart(ctxBodyFat, {
-                type: 'line',
-                data: {
-                    labels: dates,
-                    datasets: [{
-                        label: 'Gordura Corporal (%)',
-                        data: bodyFats,
-                        borderColor: 'rgb(255, 99, 132)',
-                        tension: 0.1,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
-                        }
-                    }
-                }
-            });
-        }
-
         // Gráfico de Passos
         const ctxSteps = document.getElementById('stepsChart').getContext('2d');
         stepsChart = new Chart(ctxSteps, {
@@ -261,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: 'Passos Diários',
                     data: steps,
-                    borderColor: 'rgb(255, 99, 132)', // Cor diferente para distinção
+                    borderColor: 'rgb(255, 99, 132)',
                     tension: 0.1,
                     fill: false
                 }]
@@ -285,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: 'Horas de Sono',
                     data: sleepHours,
-                    borderColor: 'rgb(54, 162, 235)', // Cor diferente para distinção
+                    borderColor: 'rgb(54, 162, 235)',
                     tension: 0.1,
                     fill: false
                 }]
@@ -376,19 +312,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalWeightChange = (currentWeight - initialWeight).toFixed(1);
         const totalWeightLoss = (initialWeight - currentWeight).toFixed(1);
 
-        const initialHeight = initialRecord.height; // Usaremos a altura do primeiro registro para IMC inicial
+        const initialHeight = initialRecord.height;
         const currentHeight = currentRecord.height;
 
         const initialImc = initialRecord.imc;
         const currentImc = currentRecord.imc;
-
-        const initialMuscleMass = initialRecord.muscleMass;
-        const currentMuscleMass = currentRecord.muscleMass;
-        const totalMuscleMassChange = (currentMuscleMass - initialMuscleMass).toFixed(1);
-
-        const initialBodyFat = initialRecord.bodyFatPercent;
-        const currentBodyFat = currentRecord.bodyFatPercent;
-        const totalBodyFatChange = (currentBodyFat - initialBodyFat).toFixed(1);
 
 
         const avgSteps = records.reduce((sum, record) => sum + (record.steps || 0), 0) / records.length;
@@ -411,8 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>Variação de Peso Total:</strong> ${totalWeightChange > 0 ? '+' : ''}${totalWeightChange}kg ${totalWeightLoss > 0 && totalWeightLoss !== '0.0' ? `(Perda: ${totalWeightLoss}kg)` : ''}</p>
             ${initialHeight && currentHeight ? `<p><strong>Altura Registrada:</strong> ${currentHeight}cm</p>` : ''}
             ${initialImc && currentImc ? `<p><strong>IMC Inicial:</strong> ${initialImc.toFixed(1)} | <strong>IMC Atual:</strong> ${currentImc.toFixed(1)} (${getIMCCategory(currentImc)})</p>` : ''}
-            ${initialMuscleMass && currentMuscleMass ? `<p><strong>Massa Muscular:</strong> Inicial ${initialMuscleMass}kg | Atual ${currentMuscleMass}kg (${totalMuscleMassChange > 0 ? '+' : ''}${totalMuscleMassChange}kg)</p>` : ''}
-            ${initialBodyFat && currentBodyFat ? `<p><strong>Gordura Corporal:</strong> Inicial ${initialBodyFat}% | Atual ${currentBodyFat}% (${totalBodyFatChange > 0 ? '+' : ''}${totalBodyFatChange}%)</p>` : ''}
             <p><strong>Média Diária de Passos:</strong> ${avgSteps.toFixed(0)} passos</p>
             <p><strong>Média de Horas de Sono:</strong> ${avgSleepHours.toFixed(1)}h</p>
             <p><strong>Total de Treinos de Força Registrados:</strong> ${strengthTrainingCount}</p>
@@ -437,11 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const newRecord = {
             id: Date.now(), // Adiciona um ID único para fácil remoção
             recordDate: document.getElementById('recordDate').value,
-            height: heightCm || null, // Novo campo
+            height: heightCm || null,
             weight: weightKg,
-            imc: imc, // Novo campo calculado
-            muscleMass: document.getElementById('muscleMass').value ? parseFloat(document.getElementById('muscleMass').value) : null, // Novo campo
-            bodyFatPercent: document.getElementById('bodyFatPercent').value ? parseFloat(document.getElementById('bodyFatPercent').value) : null, // Novo campo
+            imc: imc, // Calculado aqui
+            // Massa Muscular e Gordura Corporal removidos da coleta
 
             steps: document.getElementById('steps').value ? parseInt(document.getElementById('steps').value, 10) : null,
             sleepHours: document.getElementById('sleepHours').value ? parseFloat(document.getElementById('sleepHours').value) : null,
