@@ -23,6 +23,15 @@
             color: #0056b3;
             text-align: center;
         }
+        /* Estilo para o subtítulo */
+        .subtitle {
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+            margin-top: -10px; /* Ajusta um pouco para cima para ficar mais próximo do título */
+            margin-bottom: 20px; /* Espaço abaixo do subtítulo */
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -31,7 +40,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="number"], input[type="date"], select, textarea { /* Adicionado textarea */
+        input[type="number"], input[type="date"], select, textarea {
             width: calc(100% - 22px);
             padding: 10px;
             border: 1px solid #ddd;
@@ -64,12 +73,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap; /* Para quebrar linha em telas menores */
+            flex-wrap: wrap;
         }
         .progress-item span {
             flex: 1;
             margin-right: 10px;
-            min-width: 250px; /* Garante que o texto não fique muito espremido */
+            min-width: 250px;
         }
         .progress-item button {
             width: auto;
@@ -94,8 +103,8 @@
             margin-top: 20px;
         }
         .chart-box, .info-box {
-            width: 48%; /* Aproximadamente metade da largura */
-            min-width: 300px; /* Garante que não fique muito pequeno em telas menores */
+            width: 48%;
+            min-width: 300px;
             margin-bottom: 20px;
             padding: 15px;
             background: #fff;
@@ -104,7 +113,7 @@
         }
         @media (max-width: 768px) {
             .chart-box, .info-box {
-                width: 95%; /* Uma coluna em telas menores */
+                width: 95%;
             }
         }
         .metrics-summary {
@@ -135,13 +144,29 @@
         .info-box th {
             background-color: #f2f2f2;
         }
+        /* Estilos para os campos de treino de força */
+        .strength-exercise-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .strength-exercise-group label {
+            width: 120px; /* Largura fixa para os rótulos dos exercícios */
+            margin-bottom: 0;
+        }
+        .strength-exercise-group input {
+            width: calc(50% - 130px); /* Ajusta a largura dos campos */
+            margin-right: 10px;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Meu Diário de Progresso de Saúde</h1>
-       <center><p>Preencha os dados da sua evolução diária/semanal para acompanhar seu progresso.</p></certer>
+        <p class="subtitle">(Bônus extra para o leitor de A Arquitetura da Riqueza de &copy;Paulo Fernando de Barros)</p>
+
+        <p>Preencha os dados da sua evolução diária/semanal para acompanhar seu progresso.</p>
 
         <form id="progressForm">
             <div class="form-group">
@@ -167,9 +192,37 @@
                     <option value="no">Não</option>
                 </select>
             </div>
+
+            <div id="strengthDetails" style="display: none;"> <p><strong>Detalhes do Treino de Força:</strong></p>
+                <div class="strength-exercise-group">
+                    <label for="squatsWeight">Agachamento (kg):</label>
+                    <input type="number" id="squatsWeight" step="0.5" placeholder="Peso">
+                    <label for="squatsReps">Repetições:</label>
+                    <input type="text" id="squatsReps" placeholder="Ex: 5x5 ou 10,8,6">
+                </div>
+                <div class="strength-exercise-group">
+                    <label for="deadliftsWeight">Levantamento Terra (kg):</label>
+                    <input type="number" id="deadliftsWeight" step="0.5" placeholder="Peso">
+                    <label for="deadliftsReps">Repetições:</label>
+                    <input type="text" id="deadliftsReps" placeholder="Ex: 3x5 ou 8,6,4">
+                </div>
+                <div class="strength-exercise-group">
+                    <label for="benchPressWeight">Supino (kg):</label>
+                    <input type="number" id="benchPressWeight" step="0.5" placeholder="Peso">
+                    <label for="benchPressReps">Repetições:</label>
+                    <input type="text" id="benchPressReps" placeholder="Ex: 5x5 ou 10,8,6">
+                </div>
+                <div class="strength-exercise-group">
+                    <label for="rowsWeight">Remada (kg):</label>
+                    <input type="number" id="rowsWeight" step="0.5" placeholder="Peso">
+                    <label for="rowsReps">Repetições:</label>
+                    <input type="text" id="rowsReps" placeholder="Ex: 5x5 ou 10,8,6">
+                </div>
+            </div>
+
             <div class="form-group">
-                <label for="trainingNotes">Notas do Treino (Opcional, ex: Agachamento, Supino):</label>
-                <textarea id="trainingNotes" rows="2" placeholder="Descreva seu treino de força..."></textarea>
+                <label for="trainingNotes">Notas Adicionais do Treino (Opcional):</label>
+                <textarea id="trainingNotes" rows="2" placeholder="Outros exercícios, como se sentiu, etc..."></textarea>
             </div>
             <div class="form-group">
                 <label for="proteinIntake">Consumo de Proteína (Alto/Médio/Baixo):</label>
@@ -180,8 +233,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="foodNotes">Notas da Alimentação (Opcional, ex: Café da manhã com ovos, almoço com frango e salada):</label>
-                <textarea id="foodNotes" rows="3" placeholder="Descreva suas refeições principais..."></textarea>
+                <label for="foodNotes">Notas da Alimentação (Opcional):</label>
+                <textarea id="foodNotes" rows="3" placeholder="Descreva suas refeições principais, lanches..."></textarea>
             </div>
             <button type="submit">Adicionar Registro</button>
         </form>
@@ -212,6 +265,14 @@
                     <h3>Métricas e Resumo</h3>
                     <div id="metricsSummary" class="metrics-summary">
                         </div>
+                </div>
+                <div class="chart-box" id="squatsChartContainer" style="display: none;">
+                    <h3>Agachamento (Peso Max - kg)</h3>
+                    <canvas id="squatsChart"></canvas>
+                </div>
+                <div class="chart-box" id="deadliftsChartContainer" style="display: none;">
+                    <h3>Levantamento Terra (Peso Max - kg)</h3>
+                    <canvas id="deadliftsChart"></canvas>
                 </div>
             </div>
         </div>
