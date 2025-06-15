@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Progresso de Saúde</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="date"], select, textarea { /* Adicionado textarea */
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #progressList {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .progress-item {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Para quebrar linha em telas menores */
+        }
+        .progress-item span {
+            flex: 1;
+            margin-right: 10px;
+            min-width: 250px; /* Garante que o texto não fique muito espremido */
+        }
+        .progress-item button {
+            width: auto;
+            background-color: #dc3545;
+            margin-left: 10px;
+            padding: 5px 10px;
+        }
+        .progress-item button:hover {
+            background-color: #c82333;
+        }
+        /* Estilos para a seção de gráficos e novas seções */
+        .chart-section, .info-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        .chart-container, .info-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .chart-box, .info-box {
+            width: 48%; /* Aproximadamente metade da largura */
+            min-width: 300px; /* Garante que não fique muito pequeno em telas menores */
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 768px) {
+            .chart-box, .info-box {
+                width: 95%; /* Uma coluna em telas menores */
+            }
+        }
+        .metrics-summary {
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            text-align: left;
+            margin-top: 10px;
+        }
+        .info-box ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+        .info-box ul li {
+            margin-bottom: 8px;
+        }
+        .info-box table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .info-box th, .info-box td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .info-box th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Meu Diário de Progresso de Saúde</h1>
+        <p>Preencha os dados da sua evolução diária/semanal para acompanhar seu progresso.</p>
+
+        <form id="progressForm">
+            <div class="form-group">
+                <label for="recordDate">Data:</label>
+                <input type="date" id="recordDate" required>
+            </div>
+            <div class="form-group">
+                <label for="weight">Peso (kg):</label>
+                <input type="number" id="weight" step="0.1" placeholder="Ex: 110.5" required>
+            </div>
+            <div class="form-group">
+                <label for="steps">Passos (diários):</label>
+                <input type="number" id="steps" placeholder="Ex: 8500">
+            </div>
+            <div class="form-group">
+                <label for="sleepHours">Horas de Sono:</label>
+                <input type="number" id="sleepHours" step="0.1" placeholder="Ex: 7.5">
+            </div>
+            <div class="form-group">
+                <label for="strengthTraining">Treino de Força?</label>
+                <select id="strengthTraining">
+                    <option value="yes">Sim</option>
+                    <option value="no">Não</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="trainingNotes">Notas do Treino (Opcional, ex: Agachamento, Supino):</label>
+                <textarea id="trainingNotes" rows="2" placeholder="Descreva seu treino de força..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="proteinIntake">Consumo de Proteína (Alto/Médio/Baixo):</label>
+                <select id="proteinIntake">
+                    <option value="high">Alto</option>
+                    <option value="medium">Médio</option>
+                    <option value="low">Baixo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="foodNotes">Notas da Alimentação (Opcional, ex: Café da manhã com ovos, almoço com frango e salada):</label>
+                <textarea id="foodNotes" rows="3" placeholder="Descreva suas refeições principais..."></textarea>
+            </div>
+            <button type="submit">Adicionar Registro</button>
+        </form>
+
+        <hr>
+
+        <h2>Meus Registros</h2>
+        <div id="progressList">
+            <p style="text-align: center; color: #666;" id="noRecordsMessage">Nenhum registro ainda. Adicione o primeiro!</p>
+        </div>
+
+        <div class="chart-section">
+            <h2>Minha Evolução</h2>
+            <div class="chart-container">
+                <div class="chart-box">
+                    <h3>Peso (kg)</h3>
+                    <canvas id="weightChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Passos Diários</h3>
+                    <canvas id="stepsChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Horas de Sono</h3>
+                    <canvas id="sleepChart"></canvas>
+                </div>
+                 <div class="chart-box">
+                    <h3>Métricas e Resumo</h3>
+                    <div id="metricsSummary" class="metrics-summary">
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="info-section">
+            <h2>Recursos e Guias</h2>
+            <div class="info-content">
+                <div class="info-box">
+                    <h3>Guia de Alimentação e Calorias (Exemplo)</h3>
+                    <p>Aqui você pode ter uma referência rápida para alguns pratos e seus valores calóricos aproximados. Lembre-se que estes são valores médios e podem variar.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Prato</th>
+                                <th>Calorias (aprox.)</th>
+                                <th>Proteína (g)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Feijão (1 concha)</td>
+                                <td>150 kcal</td>
+                                <td>9g</td>
+                            </tr>
+                            <tr>
+                                <td>Arroz Branco (3 colheres sopa)</td>
+                                <td>130 kcal</td>
+                                <td>3g</td>
+                            </tr>
+                            <tr>
+                                <td>Frango Grelhado (100g)</td>
+                                <td>165 kcal</td>
+                                <td>31g</td>
+                            </tr>
+                            <tr>
+                                <td>Bife de Alcatra (100g)</td>
+                                <td>220 kcal</td>
+                                <td>29g</td>
+                            </tr>
+                            <tr>
+                                <td>Ovos Mexidos (2 ovos)</td>
+                                <td>155 kcal</td>
+                                <td>13g</td>
+                            </tr>
+                            <tr>
+                                <td>Salada Completa (sem molho extra)</td>
+                                <td>100-200 kcal</td>
+                                <td>5-10g</td>
+                            </tr>
+                            <tr>
+                                <td>Pão Francês (1 unidade)</td>
+                                <td>150 kcal</td>
+                                <td>5g</td>
+                            </tr>
+                            <tr>
+                                <td>Abacate (100g)</td>
+                                <td>160 kcal</td>
+                                <td>2g</td>
+                            </tr>
+                            <tr>
+                                <td>Iogurte Natural (1 copo)</td>
+                                <td>100 kcal</td>
+                                <td>6g</td>
+                            </tr>
+                            <tr>
+                                <td>Açaí puro (100g)</td>
+                                <td>60-80 kcal</td>
+                                <td>1-2g</td>
+                            </tr>
+                            </tbody>
+                    </table>
+                    <p><small>Consulte sempre um nutricionista para um plano alimentar personalizado.</small></p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Exercícios de Força Essenciais (Compound Lifts)</h3>
+                    <p>Estes são os movimentos compostos que trabalham múltiplos músculos e devem ser a base do seu treino de força:</p>
+                    <ul>
+                        <li><strong>Agachamento (Squats):</strong> Exercício fundamental para pernas e glúteos.</li>
+                        <li><strong>Levantamento Terra (Deadlifts):</strong> Um dos exercícios mais completos, trabalhando costas, pernas e glúteos.</li>
+                        <li><strong>Supino (Bench Press):</strong> Foco no peito, ombros e tríceps.</li>
+                        <li><strong>Remada Curvada (Bent-Over Rows):</strong> Excelente para as costas e bíceps.</li>
+                        <li><strong>Desenvolvimento com Barra/Halteres (Overhead Press):</strong> Fortalece ombros e tríceps.</li>
+                        <li><strong>Barras Fixas (Pull-ups/Lat Pulldowns):</strong> Ótimo para costas e bíceps (se não conseguir pull-ups, use a máquina de lat pulldown).</li>
+                        <li><strong>Paralelas (Dips):</strong> Trabalha peito, ombros e tríceps.</li>
+                    </ul>
+                    <p><small>Busque a orientação de um profissional de educação física para a execução correta e progressão.</small></p>
+                </div>
+
+                <div class="info-box">
+                    <h3>Posições Básicas de Yoga para Iniciantes</h3>
+                    <p>A yoga pode ajudar na flexibilidade, equilíbrio, força e redução do estresse. Comece com estas posições:</p>
+                    <ul>
+                        <li><strong>Tadasana (Postura da Montanha):</strong> Base para todas as posturas em pé, melhora a postura.</li>
+                        <li><strong>Adho Mukha Svanasana (Cachorro Olhando para Baixo):</strong> Alonga todo o corpo, fortalece braços e pernas.</li>
+                        <li><strong>Utkatasana (Postura da Cadeira):</strong> Fortalece pernas e core.</li>
+                        <li><strong>Virabhadrasana I e II (Posturas do Guerreiro I e II):</strong> Fortalecem pernas, abrem o quadril e peito.</li>
+                        <li><strong>Setu Bandhasana (Postura da Ponte):</strong> Fortalece costas, glúteos e isquiotibiais.</li>
+                        <li><strong>Balasana (Postura da Criança):</strong> Relaxante, alonga quadris e costas.</li>
+                        <li><strong>Savasana (Postura do Cadáver):</strong> Posição final de relaxamento.</li>
+                    </ul>
+                    <p><small>Consulte um instrutor de yoga qualificado, especialmente se tiver alguma condição física.</small></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
