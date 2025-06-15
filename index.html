@@ -151,11 +151,11 @@
             margin-bottom: 10px;
         }
         .strength-exercise-group label {
-            width: 120px; /* Largura fixa para os rótulos dos exercícios */
+            width: 120px;
             margin-bottom: 0;
         }
         .strength-exercise-group input {
-            width: calc(50% - 130px); /* Ajusta a largura dos campos */
+            width: calc(50% - 130px);
             margin-right: 10px;
         }
     </style>
@@ -174,9 +174,22 @@
                 <input type="date" id="recordDate" required>
             </div>
             <div class="form-group">
+                <label for="height">Altura (cm):</label>
+                <input type="number" id="height" step="1" placeholder="Ex: 175" required>
+            </div>
+            <div class="form-group">
                 <label for="weight">Peso (kg):</label>
                 <input type="number" id="weight" step="0.1" placeholder="Ex: 110.5" required>
             </div>
+            <div class="form-group">
+                <label for="muscleMass">Massa Muscular (kg):</label>
+                <input type="number" id="muscleMass" step="0.1" placeholder="Ex: 80.2 (Se disponível)">
+            </div>
+            <div class="form-group">
+                <label for="bodyFatPercent">Gordura Corporal (%):</label>
+                <input type="number" id="bodyFatPercent" step="0.1" placeholder="Ex: 25.5 (Se disponível)">
+            </div>
+
             <div class="form-group">
                 <label for="steps">Passos (diários):</label>
                 <input type="number" id="steps" placeholder="Ex: 8500">
@@ -193,7 +206,8 @@
                 </select>
             </div>
 
-            <div id="strengthDetails" style="display: none;"> <p><strong>Detalhes do Treino de Força:</strong></p>
+            <div id="strengthDetails" style="display: none;">
+                <p><strong>Detalhes do Treino de Força:</strong></p>
                 <div class="strength-exercise-group">
                     <label for="squatsWeight">Agachamento (kg):</label>
                     <input type="number" id="squatsWeight" step="0.5" placeholder="Peso">
@@ -254,17 +268,24 @@
                     <canvas id="weightChart"></canvas>
                 </div>
                 <div class="chart-box">
+                    <h3>IMC</h3>
+                    <canvas id="imcChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Massa Muscular (kg)</h3>
+                    <canvas id="muscleMassChart"></canvas>
+                </div>
+                 <div class="chart-box">
+                    <h3>Gordura Corporal (%)</h3>
+                    <canvas id="bodyFatChart"></canvas>
+                </div>
+                <div class="chart-box">
                     <h3>Passos Diários</h3>
                     <canvas id="stepsChart"></canvas>
                 </div>
                 <div class="chart-box">
                     <h3>Horas de Sono</h3>
                     <canvas id="sleepChart"></canvas>
-                </div>
-                 <div class="chart-box">
-                    <h3>Métricas e Resumo</h3>
-                    <div id="metricsSummary" class="metrics-summary">
-                        </div>
                 </div>
                 <div class="chart-box" id="squatsChartContainer" style="display: none;">
                     <h3>Agachamento (Peso Max - kg)</h3>
@@ -273,6 +294,11 @@
                 <div class="chart-box" id="deadliftsChartContainer" style="display: none;">
                     <h3>Levantamento Terra (Peso Max - kg)</h3>
                     <canvas id="deadliftsChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Métricas e Resumo</h3>
+                    <div id="metricsSummary" class="metrics-summary">
+                        </div>
                 </div>
             </div>
         </div>
